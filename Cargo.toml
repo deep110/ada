@@ -1,8 +1,22 @@
 [package]
 name = "ada"
 version = "0.1.0"
+description = "2D Shapes Rendering Library"
 authors = ["Deepankar Agrawal <deepankar11093@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+categories = []
+keywords = ["shape", "2d", "render"]
+homepage = "https://github.com/deep110/ada"
+repository = "https://github.com/deep110/ada"
+documentation = "https://docs.rs/ada"
 edition = "2018"
+exclude = [
+    "examples/*",
+]
 
 [dependencies]
 rgb = "0.8.25"
+
+[dev-dependencies]
+minifb = { git = "https://github.com/emoon/rust_minifb.git", branch = "master" }
