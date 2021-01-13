@@ -1,5 +1,12 @@
 
-pub mod canvas;
+// forbid unsafe code
+#![forbid(unsafe_code)]
+
+mod point;
+mod shape;
+mod canvas;
+
+pub use canvas::Canvas;
 
 #[cfg(test)]
 mod tests {

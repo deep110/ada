@@ -14,6 +14,8 @@ fn main() {
         HEIGHT,
         WindowOptions {
             topmost: true,
+            // transparency: true,
+            // borderless: true,
             ..WindowOptions::default()
         },
     )
@@ -24,9 +26,15 @@ fn main() {
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
+    // create canvas
+    let canvas = ada::Canvas::new(WIDTH, HEIGHT);
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for i in buffer.iter_mut() {
-            *i = 100; // write something more funny here!
+            let r = 255;
+            let g = 255;
+            let b = 0;
+            *i = (r << 16) | (g << 8) | b;
         }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();

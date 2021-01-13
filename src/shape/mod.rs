@@ -1,4 +1,15 @@
+use crate::canvas::Canvas;
 
-// forbid unsafe code
-#![forbid(unsafe_code)]
+trait Shape {
+    fn draw(&self, canvas: &mut Canvas);
+}
 
+struct Line2D {
+
+}
+
+impl Shape for Line2D {
+
+    fn draw(&self, _: &mut Canvas) {
+    }
+}
