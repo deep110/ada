@@ -13,7 +13,11 @@ impl Canvas {
         }
     }
 
-    pub fn draw() {
+    pub fn draw(&mut self) {
+
+    }
+
+    pub fn clear(&mut self) {
         
     }
 }
