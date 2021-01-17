@@ -2,8 +2,10 @@ extern crate ada;
 
 use minifb::{Key, Window, WindowOptions};
 
-const WIDTH: usize = 640;
-const HEIGHT: usize = 640;
+use ada::{Canvas, ColorMode};
+
+const WIDTH: usize = 512;
+const HEIGHT: usize = 512;
 
 fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
@@ -14,8 +16,6 @@ fn main() {
         HEIGHT,
         WindowOptions {
             topmost: true,
-            // transparency: true,
-            // borderless: true,
             ..WindowOptions::default()
         },
     )
@@ -27,14 +27,17 @@ fn main() {
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
     // create canvas
-    let canvas = ada::Canvas::new(WIDTH, HEIGHT);
+    let mut cbuffer: Vec<u8> = vec![0; 3 * WIDTH * HEIGHT];
+    let _canvas = Canvas::new_with_color_mode(WIDTH, HEIGHT, &mut cbuffer[..], ColorMode::RGB);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        for i in buffer.iter_mut() {
+        for (i, pix) in buffer.iter_mut().enumerate() {
             let r = 255;
             let g = 255;
             let b = 0;
-            *i = (r << 16) | (g << 8) | b;
+            if i > 10 && i < 30 {
+                *pix = (r << 16) | (g << 8) | b;
+            }
         }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
