@@ -28,18 +28,21 @@ fn main() {
 
     // create canvas
     let mut cbuffer: Vec<u8> = vec![0; 4 * WIDTH * HEIGHT];
-    let _canvas = Canvas::new(WIDTH, HEIGHT, &mut cbuffer[..]);
+    let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut cbuffer[..]);
+
+    let white = ada::color::WHITE;
+    let line = ada::shape::Line2D::new(50, 50, 60, 60);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        canvas.draw(&line, &white, false);
+
         for (i, pix) in buffer.iter_mut().enumerate() {
-            let r = 255;
-            let g = 255;
-            let b = 0;
-            if i > 10 && i < 30 {
-                *pix = (r << 16) | (g << 8) | b;
-            }
+            let c = canvas.get_color(i % WIDTH, i / WIDTH);
+            *pix = ((c[0] as u32) << 16) | ((c[1] as u32) << 8) | (c[2] as u32);
         }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+
+        canvas.clear(&ada::color::BLACK);
     }
 }

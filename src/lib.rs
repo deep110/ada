@@ -4,8 +4,8 @@
 mod canvas;
 pub mod color;
 mod point;
-mod shape;
+pub mod shape;
 
 pub use canvas::Canvas;
-pub use color::*;
+pub use color::Color;
 pub use point::Point;

@@ -18,7 +18,7 @@ impl<'a> Canvas<'a> {
         }
     }
 
-    pub fn draw(&mut self, shape: &dyn shape::Shape, color: Color, is_filled: bool) {
+    pub fn draw(&mut self, shape: &dyn shape::Shape, color: &Color, is_filled: bool) {
         if is_filled {
             shape.draw_filled(self, color)
         } else {
@@ -34,9 +34,16 @@ impl<'a> Canvas<'a> {
         }
     }
 
+    #[inline]
+    pub fn get_color(&self, x: usize, y: usize) -> &[u8] {
+        let si = (x + y * self.width) * 4;
+
+        return &self.buffer[si..si + 4];
+    }
+
     #[inline(always)]
     pub(crate) fn draw_point(&mut self, x: usize, y: usize, color: &Color) {
-        let si = (x * self.width + y) * 4;
+        let si = (x + y * self.width) * 4;
         self.buffer[si] = color.r;
         self.buffer[si + 1] = color.g;
         self.buffer[si + 2] = color.b;
