@@ -2,7 +2,7 @@ extern crate ada;
 
 use minifb::{Key, Window, WindowOptions};
 
-use ada::{Canvas, ColorMode};
+use ada::Canvas;
 
 const WIDTH: usize = 512;
 const HEIGHT: usize = 512;
@@ -23,12 +23,12 @@ fn main() {
         panic!("{}", e);
     });
 
-    // Limit to max ~60 fps update rate
-    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    // Limit to max ~30 fps update rate
+    window.limit_update_rate(Some(std::time::Duration::from_micros(33333)));
 
     // create canvas
-    let mut cbuffer: Vec<u8> = vec![0; 3 * WIDTH * HEIGHT];
-    let _canvas = Canvas::new_with_color_mode(WIDTH, HEIGHT, &mut cbuffer[..], ColorMode::RGB);
+    let mut cbuffer: Vec<u8> = vec![0; 4 * WIDTH * HEIGHT];
+    let _canvas = Canvas::new(WIDTH, HEIGHT, &mut cbuffer[..]);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for (i, pix) in buffer.iter_mut().enumerate() {

@@ -1,4 +1,4 @@
-use crate::ColorMode;
+use crate::{shape, Color};
 
 pub struct Canvas<'a> {
     // height of canvas
@@ -6,45 +6,40 @@ pub struct Canvas<'a> {
     // width of canvas
     width: usize,
 
-    stride: usize,
-
     buffer: &'a mut [u8],
-
-    color_mode: ColorMode,
 }
 
-impl <'a> Canvas<'a> {
+impl<'a> Canvas<'a> {
     pub fn new(width: usize, height: usize, buffer: &'a mut [u8]) -> Canvas<'a> {
         Canvas {
             width: width,
             height: height,
-            stride: 4,
             buffer: buffer,
-            color_mode: ColorMode::RGBA,
         }
     }
 
-    pub fn new_with_color_mode(width: usize, height: usize, buffer: &'a mut [u8], color_mode: ColorMode) -> Canvas<'a> {
-        let stride = if color_mode == ColorMode::RGB {
-            3
+    pub fn draw(&mut self, shape: &dyn shape::Shape, color: Color, is_filled: bool) {
+        if is_filled {
+            shape.draw_filled(self, color)
         } else {
-            4
-        };
-
-        Canvas {
-            width: width,
-            height: height,
-            stride: stride,
-            buffer: buffer,
-            color_mode: color_mode,
+            shape.draw(self, color)
         }
     }
 
-    pub fn draw(&mut self) {
-
+    pub fn clear(&mut self, color: &Color) {
+        for i in 0..self.width {
+            for j in 0..self.height {
+                self.draw_point(i, j, color);
+            }
+        }
     }
 
-    pub fn clear(&mut self) {
-        
+    #[inline(always)]
+    pub(crate) fn draw_point(&mut self, x: usize, y: usize, color: &Color) {
+        let si = (x * self.width + y) * 4;
+        self.buffer[si] = color.r;
+        self.buffer[si + 1] = color.g;
+        self.buffer[si + 2] = color.b;
+        self.buffer[si + 3] = color.a;
     }
 }

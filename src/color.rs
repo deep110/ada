@@ -17,13 +17,6 @@ impl Color {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum ColorMode {
-    RGB,
-    ARGB,
-    RGBA,
-}
-
 #[macro_export]
 macro_rules! color {
     { $A:expr, $B:expr, $C:expr } => {
