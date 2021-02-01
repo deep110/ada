@@ -1,4 +1,4 @@
-use crate::{shape, Color};
+use crate::{errors, shape, Color, Result};
 
 pub struct Canvas<'a> {
     // height of canvas
@@ -10,12 +10,15 @@ pub struct Canvas<'a> {
 }
 
 impl<'a> Canvas<'a> {
-    pub fn new(width: usize, height: usize, buffer: &'a mut [u8]) -> Canvas<'a> {
-        Canvas {
+    pub fn new(width: usize, height: usize, buffer: &'a mut [u8]) -> Result<Canvas<'a>> {
+        if buffer.len() < 4 * width * height {
+            return errors::unsupported_error("Insufficient buffer length");
+        }
+        Ok(Canvas {
             width: width,
             height: height,
             buffer: buffer,
-        }
+        })
     }
 
     pub fn draw(&mut self, shape: &dyn shape::Shape, color: &Color, is_filled: bool) {

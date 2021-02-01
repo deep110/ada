@@ -9,4 +9,4 @@ pub trait Shape {
     fn draw_filled(&self, canvas: &mut Canvas, color: &Color);
 }
 
-pub use line2d::*;
+pub use line2d::{Line2D, draw_line2d};
