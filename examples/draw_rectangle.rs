@@ -34,7 +34,7 @@ fn main() {
     let rect = shape::Rectangle2D::new(50, 50, 100, 100);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        canvas.draw(&rect, &white, false);
+        canvas.draw(&rect, &white, true);
 
         for (i, pix) in buffer.iter_mut().enumerate() {
             let c = canvas.get_color((i % WIDTH) as i32, (i / WIDTH) as i32);

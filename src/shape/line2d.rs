@@ -2,6 +2,7 @@ use crate::canvas::Canvas;
 use crate::shape::Shape;
 use crate::Color;
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Line2D {
     x1: i32,
     y1: i32,

@@ -11,4 +11,4 @@ pub trait Shape {
 }
 
 pub use line2d::{Line2D, draw_line2d};
-pub use rectangle2d::{Rectangle2D, draw_rect2d};
+pub use rectangle2d::{Rectangle2D, draw_rect2d, draw_rect2d_filled};
