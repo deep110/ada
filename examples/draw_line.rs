@@ -2,7 +2,7 @@ extern crate ada;
 
 use minifb::{Key, Window, WindowOptions};
 
-use ada::{Canvas, shape};
+use ada::{shape, Canvas};
 
 const WIDTH: usize = 512;
 const HEIGHT: usize = 512;
@@ -31,13 +31,13 @@ fn main() {
     let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut cbuffer[..]).unwrap();
 
     let white = ada::color::WHITE;
-    let line = shape::Line2D::new(51, 500, 50, 50);
+    let line = shape::Line2D::new(50, 50, 50, 500);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         canvas.draw(&line, &white, false);
 
         for (i, pix) in buffer.iter_mut().enumerate() {
-            let c = canvas.get_color(i % WIDTH, i / WIDTH);
+            let c = canvas.get_color((i % WIDTH) as i32, (i / WIDTH) as i32);
             *pix = ((c[0] as u32) << 16) | ((c[1] as u32) << 8) | (c[2] as u32);
         }
 

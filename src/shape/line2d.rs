@@ -47,11 +47,11 @@ pub fn draw_line2d(x1: i32, y1: i32, x2: i32, y2: i32, canvas: &mut Canvas, colo
     let dx = mx2 - mx1;
     let dy = my2 - my1;
     let mut p = dy * 2 - dx;
-    for x in mx1..(mx2+1) {
+    for x in mx1..(mx2 + 1) {
         if steep {
-            canvas.draw_point(my1 as usize, x as usize, color);
+            canvas.draw_point(my1, x, color);
         } else {
-            canvas.draw_point(x as usize, my1 as usize, color);
+            canvas.draw_point(x, my1, color);
         }
         if p >= 0 {
             my1 = my1 + 1;
@@ -120,6 +120,34 @@ mod tests {
         assert_eq!(canvas.get_color(1, 2), &WHITE);
         assert_eq!(canvas.get_color(2, 3), &WHITE);
         assert_eq!(canvas.get_color(2, 4), &WHITE);
+    }
+
+    #[test]
+    fn test_line_slope_infinite() {
+        let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
+        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+
+        draw_line2d(0, 0, 0, 4, &mut canvas, &color::WHITE);
+
+        assert_eq!(canvas.get_color(0, 0), &WHITE);
+        assert_eq!(canvas.get_color(0, 1), &WHITE);
+        assert_eq!(canvas.get_color(0, 2), &WHITE);
+        assert_eq!(canvas.get_color(0, 3), &WHITE);
+        assert_eq!(canvas.get_color(0, 4), &WHITE);
+    }
+
+    #[test]
+    fn test_line_slope_zero() {
+        let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
+        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+
+        draw_line2d(0, 0, 4, 0, &mut canvas, &color::WHITE);
+
+        assert_eq!(canvas.get_color(0, 0), &WHITE);
+        assert_eq!(canvas.get_color(1, 0), &WHITE);
+        assert_eq!(canvas.get_color(2, 0), &WHITE);
+        assert_eq!(canvas.get_color(3, 0), &WHITE);
+        assert_eq!(canvas.get_color(4, 0), &WHITE);
     }
 
     #[test]
