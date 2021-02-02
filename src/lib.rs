@@ -1,6 +1,9 @@
 // forbid unsafe code
 #![forbid(unsafe_code)]
 
+#![feature(test)]
+extern crate test;
+
 mod canvas;
 pub mod color;
 pub mod errors;
