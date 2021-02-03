@@ -70,7 +70,7 @@ fn draw_circle(xc: i32, yc: i32, radius: i32, canvas: &mut Canvas, color: &Color
     let mut y = radius;
     let mut d = 1 - radius;
 
-    while y > x {
+    while x <= y {
         canvas.draw_point(xc + x, yc + y, color);
         canvas.draw_point(xc + y, yc + x, color);
         canvas.draw_point(xc - y, yc + x, color);
@@ -110,7 +110,7 @@ fn draw_circle_filled(xc: i32, yc: i32, radius: i32, canvas: &mut Canvas, color:
     let mut y = radius;
     let mut d = 1 - radius;
 
-    while y > x {
+    while x <= y {
         draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color);
         draw_line2d(xc + y, yc + x, xc - y, yc + x, canvas, color);
         draw_line2d(xc + y, yc - x, xc - y, yc - x, canvas, color);
