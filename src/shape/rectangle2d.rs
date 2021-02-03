@@ -1,4 +1,4 @@
-use super::draw_line2d;
+use super::line2d::draw_line2d;
 use crate::canvas::Canvas;
 use crate::shape::Shape;
 use crate::Color;
