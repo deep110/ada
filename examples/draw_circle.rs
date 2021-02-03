@@ -33,7 +33,7 @@ fn main() {
     let circle = shape::Ellipse2D::new(250, 250, 150, 150);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        canvas.draw(&circle, &white, true);
+        canvas.draw(&circle, &white, false);
 
         for (i, pix) in buffer.iter_mut().enumerate() {
             let c = canvas.get_color((i % WIDTH) as i32, (i / WIDTH) as i32);
