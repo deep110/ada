@@ -1,7 +1,7 @@
+use super::line2d::draw_line2d;
 use crate::canvas::Canvas;
 use crate::shape::Shape;
 use crate::Color;
-use super::line2d::draw_line2d;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Ellipse2D {
@@ -46,7 +46,11 @@ impl Shape for Ellipse2D {
     }
 }
 
-/// Draws ellipse
+/// Draws ellipse using [Mid Point Ellipse Algorithm](https://www.javatpoint.com/computer-graphics-midpoint-ellipse-algorithm)
+/// 
+/// For circle which is just a special case when major and minor axis are equal, we move to more optimized
+/// [Midpoint Circle Algorithm](https://en.wikipedia.org/wiki/Midpoint_circle_algorithm). It exploits eight the
+/// fold symmetry in circles.
 pub fn draw_ellipse2d(
     xc: i32,
     yc: i32,
@@ -60,6 +64,52 @@ pub fn draw_ellipse2d(
     if width_radius == height_radius {
         draw_circle(xc, yc, width_radius, canvas, color);
         return;
+    }
+
+    let wr2 = width_radius * width_radius;
+    let hr2 = height_radius * height_radius;
+    let mut x = 0;
+    let mut y = height_radius;
+    let mut px = 0;
+    let mut py = 2 * wr2 * y;
+
+    // Region I
+    let mut p = (hr2 - (wr2 * height_radius)) as f32 + (0.25 * wr2 as f32);
+    while px <= py {
+        x += 1;
+        px += 2 * hr2;
+        if p < 0.0 {
+            p += (hr2 + px) as f32;
+        } else {
+            y -= 1;
+            py += -2 * wr2;
+            p += (hr2 + px - py) as f32;
+        }
+
+        canvas.draw_point(xc + x, yc + y, color);
+        canvas.draw_point(xc - x, yc + y, color);
+        canvas.draw_point(xc + x, yc - y, color);
+        canvas.draw_point(xc - x, yc - y, color);
+    }
+
+    // Region II
+    p = (hr2 as f32) * (x as f32 + 0.5) * (x as f32 + 0.5) + (wr2 * (y - 1) * (y - 1)) as f32
+        - (wr2 * hr2) as f32;
+    while y > 0 {
+        y -= 1;
+        py += -2 * wr2;
+        if p > 0.0 {
+            p += (wr2 - py) as f32;
+        } else {
+            x += 1;
+            px += 2 * hr2;
+            p += (wr2 - py + px) as f32;
+        }
+
+        canvas.draw_point(xc + x, yc + y, color);
+        canvas.draw_point(xc - x, yc + y, color);
+        canvas.draw_point(xc + x, yc - y, color);
+        canvas.draw_point(xc - x, yc - y, color);
     }
 }
 
@@ -101,6 +151,48 @@ pub fn draw_ellipse2d_filled(
     if width_radius == height_radius {
         draw_circle_filled(xc, yc, width_radius, canvas, color);
         return;
+    }
+
+    let wr2 = width_radius * width_radius;
+    let hr2 = height_radius * height_radius;
+    let mut x = 0;
+    let mut y = height_radius;
+    let mut px = 0;
+    let mut py = 2 * wr2 * y;
+
+    // Region I
+    let mut p = (hr2 - (wr2 * height_radius)) as f32 + (0.25 * wr2 as f32);
+    while px <= py {
+        x += 1;
+        px += 2 * hr2;
+        if p < 0.0 {
+            p += (hr2 + px) as f32;
+        } else {
+            y -= 1;
+            py += -2 * wr2;
+            p += (hr2 + px - py) as f32;
+        }
+
+        draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color);
+        draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color);
+    }
+
+    // Region II
+    p = (hr2 as f32) * (x as f32 + 0.5) * (x as f32 + 0.5) + (wr2 * (y - 1) * (y - 1)) as f32
+        - (wr2 * hr2) as f32;
+    while y > 0 {
+        y -= 1;
+        py += -2 * wr2;
+        if p > 0.0 {
+            p += (wr2 - py) as f32;
+        } else {
+            x += 1;
+            px += 2 * hr2;
+            p += (wr2 - py + px) as f32;
+        }
+
+        draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color);
+        draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color);
     }
 }
 
@@ -145,10 +237,26 @@ mod tests {
     }
 
     #[bench]
+    fn bench_render_ellipse(b: &mut Bencher) {
+        let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
+        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+
+        b.iter(|| draw_ellipse2d(200, 200, 199, 200, &mut canvas, &color::WHITE));
+    }
+
+    #[bench]
     fn bench_render_circle_filled(b: &mut Bencher) {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
         let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
 
         b.iter(|| draw_ellipse2d_filled(200, 200, 200, 200, &mut canvas, &color::WHITE));
+    }
+
+    #[bench]
+    fn bench_render_ellipse_filled(b: &mut Bencher) {
+        let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
+        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+
+        b.iter(|| draw_ellipse2d_filled(200, 200, 199, 200, &mut canvas, &color::WHITE));
     }
 }

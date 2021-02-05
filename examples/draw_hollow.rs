@@ -20,7 +20,7 @@ fn draw_circle(canvas: &mut Canvas) {
 }
 
 fn draw_ellipse(canvas: &mut Canvas) {
-    shape::draw_ellipse2d(400, 300, 100, 50, canvas, &ada::color::GREEN);
+    shape::draw_ellipse2d(150, 400, 100, 50, canvas, &ada::color::GREEN);
 }
 
 fn main() {
