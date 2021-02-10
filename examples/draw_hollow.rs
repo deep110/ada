@@ -23,6 +23,13 @@ fn draw_ellipse(canvas: &mut Canvas) {
     shape::draw_ellipse2d(150, 400, 100, 50, canvas, &ada::color::GREEN);
 }
 
+fn draw_polygon(canvas: &mut Canvas) {
+    let xi: [i32; 10] = [127, 243, 62, 110, 93, 193, 135, 70, 258, 248];
+    let yi: [i32; 10] = [320, 15, 162, 54, 311, 314, 290, 10, 163, 155];
+
+    shape::draw_polygon2d(&xi, &yi, canvas, &ada::Color::rgb(255, 255, 0));
+}
+
 fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
 
@@ -51,6 +58,7 @@ fn main() {
         draw_rectangle(&mut canvas);
         draw_circle(&mut canvas);
         draw_ellipse(&mut canvas);
+        draw_polygon(&mut canvas);
 
         for (i, pix) in buffer.iter_mut().enumerate() {
             let c = canvas.get_color((i % WIDTH) as i32, (i / WIDTH) as i32);
