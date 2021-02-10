@@ -46,19 +46,19 @@ pub fn draw_line2d(x1: i32, y1: i32, x2: i32, y2: i32, canvas: &mut Canvas, colo
         std::mem::swap(&mut my1, &mut my2);
     }
     let dx = mx2 - mx1;
-    let dy = my2 - my1;
-    let mut p = dy * 2 - dx;
+    let derror = ((my2 - my1) * 2).abs();
+    let mut error = 0;
+    let mut y = my1;
     for x in mx1..(mx2 + 1) {
         if steep {
-            canvas.draw_point(my1, x, color);
+            canvas.draw_point(y, x, color);
         } else {
-            canvas.draw_point(x, my1, color);
+            canvas.draw_point(x, y, color);
         }
-        if p >= 0 {
-            my1 = my1 + 1;
-            p = p + 2 * dy - 2 * dx;
-        } else {
-            p = p + 2 * dy;
+        error += derror;
+        if error > dx {
+            y += if my2 > my1 { 1 } else { -1 };
+            error -= dx * 2;
         }
     }
 }
@@ -89,9 +89,9 @@ mod tests {
         draw_line2d(0, 0, 4, 2, &mut canvas, &color::WHITE);
 
         assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(1, 1), &WHITE);
+        assert_eq!(canvas.get_color(1, 0), &WHITE);
         assert_eq!(canvas.get_color(2, 1), &WHITE);
-        assert_eq!(canvas.get_color(3, 2), &WHITE);
+        assert_eq!(canvas.get_color(3, 1), &WHITE);
         assert_eq!(canvas.get_color(4, 2), &WHITE);
     }
 
@@ -117,9 +117,9 @@ mod tests {
         draw_line2d(0, 0, 2, 4, &mut canvas, &color::WHITE);
 
         assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(1, 1), &WHITE);
+        assert_eq!(canvas.get_color(0, 1), &WHITE);
         assert_eq!(canvas.get_color(1, 2), &WHITE);
-        assert_eq!(canvas.get_color(2, 3), &WHITE);
+        assert_eq!(canvas.get_color(1, 3), &WHITE);
         assert_eq!(canvas.get_color(2, 4), &WHITE);
     }
 
@@ -159,9 +159,9 @@ mod tests {
         draw_line2d(4, 2, 0, 0, &mut canvas, &color::WHITE);
 
         assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(1, 1), &WHITE);
+        assert_eq!(canvas.get_color(1, 0), &WHITE);
         assert_eq!(canvas.get_color(2, 1), &WHITE);
-        assert_eq!(canvas.get_color(3, 2), &WHITE);
+        assert_eq!(canvas.get_color(3, 1), &WHITE);
         assert_eq!(canvas.get_color(4, 2), &WHITE);
     }
 }
