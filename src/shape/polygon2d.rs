@@ -32,11 +32,11 @@ fn dist_sq(x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
 
 /// To find orientation of ordered triplet (p, q, r).
 ///
-/// Returns:
+/// Returns if p, q and r are:
 ///
-/// 0 --> p, q and r are colinear
-/// 1 --> Clockwise
-/// 2 --> Counterclockwise
+/// 0 --> Colinear |
+/// 1 --> Clockwise |
+/// 2 --> Counterclockwise |
 fn orientation(px: i32, py: i32, qx: i32, qy: i32, rx: i32, ry: i32) -> i32 {
     let val = (qy - py) * (rx - qx) - (qx - px) * (ry - qy);
 
@@ -145,17 +145,17 @@ fn create_convex_hull(xi: &[i32], yi: &[i32]) -> Vec<usize> {
 }
 
 /// Renders a convex polygon formed by the given points. It calculates the convex hull using [Graham Scan Algorithm](https://en.wikipedia.org/wiki/Graham_scan)
+/// 
+/// The provided list of points should be an open path, i.e first and last should not be same
 pub fn draw_polygon2d(xi: &[i32], yi: &[i32], canvas: &mut Canvas, color: &Color) {
     if xi.len() != yi.len() {
         return;
     }
 
     let hull = create_convex_hull(xi, yi);
-    // println!("{:?}", hull);
 
     let hull_len = hull.len() - 1;
     for i in 0..hull_len {
-        // println!("{} {}", xi[hull[i + 1]],yi[hull[i + 1]]);
         draw_line2d(
             xi[hull[i]],
             yi[hull[i]],
