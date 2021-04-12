@@ -6,7 +6,6 @@ sudo: false
 language: rust
 
 rust:
-  - stable
   - beta
   - nightly
 
@@ -15,9 +14,8 @@ matrix:
     - rust: nightly
   include:
     - os: osx
-      rust: stable
+      rust: nightly
 
 script:
-  - cargo build --verbose
   - RUST_BACKTRACE=1 cargo test --all --verbose
 
