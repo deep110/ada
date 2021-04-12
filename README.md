@@ -18,7 +18,7 @@ No use of unsafe blocks. `#![forbid(unsafe_code)]` is also declared at crate lev
 Add this to `Cargo.toml` file:
 ```toml
 [dependencies]
-ada = "0.0.1"
+ada = "0.1.0"
 ```
 
 Example code:
