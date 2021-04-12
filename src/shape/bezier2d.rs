@@ -39,7 +39,12 @@ pub struct CubicBezier2D {
 }
 
 impl CubicBezier2D {
-    pub fn new(start: (i32, i32), end: (i32, i32), control_a: (i32, i32), control_b: (i32, i32)) -> Self {
+    pub fn new(
+        start: (i32, i32),
+        end: (i32, i32),
+        control_a: (i32, i32),
+        control_b: (i32, i32),
+    ) -> Self {
         CubicBezier2D {
             start,
             end,
@@ -51,15 +56,29 @@ impl CubicBezier2D {
 
 impl Shape for CubicBezier2D {
     fn draw(&self, canvas: &mut Canvas, color: &Color) {
-        draw_cubic_bezier2d(self.start, self.end, self.control_a, self.control_b, canvas, color);
+        draw_cubic_bezier2d(
+            self.start,
+            self.end,
+            self.control_a,
+            self.control_b,
+            canvas,
+            color,
+        );
     }
 
     fn draw_filled(&self, canvas: &mut Canvas, color: &Color) {
-        draw_cubic_bezier2d(self.start, self.end, self.control_a, self.control_b, canvas, color);
+        draw_cubic_bezier2d(
+            self.start,
+            self.end,
+            self.control_a,
+            self.control_b,
+            canvas,
+            color,
+        );
     }
 }
 
-// Draws the Quadratic Bezier Curve using function from https://pomax.github.io/bezierinfo/#control
+/// Draws the Quadratic Bezier Curve using function from https://pomax.github.io/bezierinfo/#control
 pub fn draw_quadratic_bezier2d(
     start: (i32, i32),
     end: (i32, i32),
@@ -100,7 +119,9 @@ pub fn draw_quadratic_bezier2d(
     }
 }
 
-// Draws the Quadratic Bezier Curve using function from https://pomax.github.io/bezierinfo/#control
+/// Draws the Cubic Bezier Curve using function from https://pomax.github.io/bezierinfo/#control
+/// 
+/// Source Code is taken from [imageproc library](https://github.com/image-rs/imageproc/blob/master/src/drawing/bezier.rs)
 pub fn draw_cubic_bezier2d(
     start: (i32, i32),
     end: (i32, i32),
@@ -109,12 +130,20 @@ pub fn draw_cubic_bezier2d(
     canvas: &mut Canvas,
     color: &Color,
 ) {
-    let quadratic_bezier_curve = |t: f32| {
+    let cubic_bezier_curve = |t: f32| {
         let t2 = t * t;
+        let t3 = t2 * t;
         let mt = 1.0 - t;
         let mt2 = mt * mt;
-        let x = (start.0 as f32 * mt2) + (2.0 * control.0 as f32 * mt * t) + (end.0 as f32 * t2);
-        let y = (start.1 as f32 * mt2) + (2.0 * control.1 as f32 * mt * t) + (end.1 as f32 * t2);
+        let mt3 = mt2 * mt;
+        let x = (start.0 as f32 * mt3)
+            + (3.0 * control_a.0 as f32 * mt2 * t)
+            + (3.0 * control_b.0 as f32 * mt * t2)
+            + (end.0 as f32 * t3);
+        let y = (start.1 as f32 * mt3)
+            + (3.0 * control_a.1 as f32 * mt2 * t)
+            + (3.0 * control_b.1 as f32 * mt * t2)
+            + (end.1 as f32 * t3);
         // round to nearest pixel, to avoid ugly line artifacts
         (x.round() as i32, y.round() as i32)
     };
@@ -124,10 +153,9 @@ pub fn draw_cubic_bezier2d(
     };
 
     // Approximate curve's length by adding distance between control points.
-    let curve_length_bound: f32 = distance(start, control) + distance(control, end);
+    let curve_length_bound: f32 =
+        distance(start, control_a) + distance(control_a, control_b) + distance(control_b, end);
 
-    // Use hyperbola function to give shorter curves a bias in number of line
-    // segments.
     let num_segments: i32 = ((curve_length_bound.powi(2) + 800.0).sqrt() / 8.0) as i32;
 
     // Sample points along the curve and connect them with line segments.
@@ -135,8 +163,8 @@ pub fn draw_cubic_bezier2d(
     let mut t1 = 0f32;
     for i in 0..num_segments {
         let t2 = (i as f32 + 1.0) * t_interval;
-        let s1 = quadratic_bezier_curve(t1);
-        let s2 = quadratic_bezier_curve(t2);
+        let s1 = cubic_bezier_curve(t1);
+        let s2 = cubic_bezier_curve(t2);
         draw_line2d(s1.0, s1.1, s2.0, s2.1, canvas, color);
         t1 = t2;
     }

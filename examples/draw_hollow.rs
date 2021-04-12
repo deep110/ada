@@ -30,6 +30,14 @@ fn draw_polygon(canvas: &mut Canvas) {
     shape::draw_polygon2d(&xi, &yi, canvas, &ada::Color::rgb(255, 255, 0));
 }
 
+fn draw_quadratic_bezier(canvas: &mut Canvas) {
+    shape::draw_quadratic_bezier2d((70, 250), (220, 60), (20, 110), canvas, &ada::Color::rgb(0, 255, 255));
+}
+
+fn draw_cubic_bezier(canvas: &mut Canvas) {
+    shape::draw_cubic_bezier2d((110, 150), (210, 30), (25, 190), (210, 250), canvas, &ada::Color::rgb(255, 0, 255));
+}
+
 fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
 
@@ -59,6 +67,8 @@ fn main() {
         draw_circle(&mut canvas);
         draw_ellipse(&mut canvas);
         draw_polygon(&mut canvas);
+        draw_quadratic_bezier(&mut canvas);
+        draw_cubic_bezier(&mut canvas);
 
         for (i, pix) in buffer.iter_mut().enumerate() {
             let c = canvas.get_color((i % WIDTH) as i32, (i / WIDTH) as i32);
