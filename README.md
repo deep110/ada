@@ -4,7 +4,52 @@
 [![Crates.io](https://img.shields.io/crates/v/ada.svg)](https://crates.io/crates/ada)
 [![docs.rs](https://docs.rs/ada/badge.svg)](https://docs.rs/ada)
 
-2D Shapes Rendering Library
+A 2D Shapes pixel rendering library in rust. Supported shapes are:
+* Line2D
+* Rectangle2D
+* Ellipse2D
+* Polygon2D
+* Bezier2D [Both quadratic and cubic]
+
+No use of unsafe blocks. `#![forbid(unsafe_code)]` is also declared at crate level.
+
+## Usage
+
+Add this to `Cargo.toml` file:
+```toml
+[dependencies]
+ada = "0.0.1"
+```
+
+Example code:
+
+```rust
+use ada::{shape, Canvas};
+
+const WIDTH: usize = 512;
+const HEIGHT: usize = 512;
+
+// create a pixel buffer for RGBA values
+let mut cbuffer: Vec<u8> = vec![0; 4 * WIDTH * HEIGHT];
+
+// create canvas
+let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut cbuffer[..]).unwrap();
+
+// draw line
+shape::draw_line2d(50, 50, 200, 300, canvas, &ada::color::WHITE);
+
+// draw rectangle
+shape::draw_rect2d(50, 100, 100, 150, canvas, &ada::color::RED); // hollow
+shape::draw_rect2d_filled(50, 100, 90, 120, canvas, &ada::color::GREEN); // filled
+```
+
+You can find more examples for all shapes in `examples` folder. To run an example:
+```shell
+cargo run --example draw_hollow
+```
+
+## Contributing
+Please feel free to open any issues or pull requests.
 
 ## License
 
