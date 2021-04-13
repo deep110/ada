@@ -110,17 +110,18 @@ pub fn draw_quadratic_bezier2d(
     // Sample points along the curve and connect them with line segments.
     let t_interval = 1f32 / (num_segments as f32);
     let mut t1 = 0f32;
+    let mut s1 = quadratic_bezier_curve(t1);
     for i in 0..num_segments {
         let t2 = (i as f32 + 1.0) * t_interval;
-        let s1 = quadratic_bezier_curve(t1);
         let s2 = quadratic_bezier_curve(t2);
         draw_line2d(s1.0, s1.1, s2.0, s2.1, canvas, color);
         t1 = t2;
+        s1 = quadratic_bezier_curve(t1);
     }
 }
 
 /// Draws the Cubic Bezier Curve using function from https://pomax.github.io/bezierinfo/#control
-/// 
+///
 /// Source Code is taken from [imageproc library](https://github.com/image-rs/imageproc/blob/master/src/drawing/bezier.rs)
 pub fn draw_cubic_bezier2d(
     start: (i32, i32),
@@ -167,5 +168,35 @@ pub fn draw_cubic_bezier2d(
         let s2 = cubic_bezier_curve(t2);
         draw_line2d(s1.0, s1.1, s2.0, s2.1, canvas, color);
         t1 = t2;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::color;
+    use test::Bencher;
+
+    const WIDTH: usize = 512;
+    const HEIGHT: usize = 512;
+
+    #[bench]
+    fn bench_render_quadratic_bezier(b: &mut Bencher) {
+        let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
+        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+
+        b.iter(|| {
+            draw_quadratic_bezier2d((10, 500), (500, 10), (40, 40), &mut canvas, &color::WHITE)
+        });
+    }
+
+    #[bench]
+    fn bench_render_cubic_bezier(b: &mut Bencher) {
+        let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
+        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+
+        b.iter(|| {
+            draw_cubic_bezier2d((110, 150), (210, 30), (25, 190), (210, 250), &mut canvas, &color::WHITE)
+        });
     }
 }

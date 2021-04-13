@@ -30,10 +30,10 @@ const WIDTH: usize = 512;
 const HEIGHT: usize = 512;
 
 // create a pixel buffer for RGBA values
-let mut cbuffer: Vec<u8> = vec![0; 4 * WIDTH * HEIGHT];
+let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
 
 // create canvas
-let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut cbuffer[..]).unwrap();
+let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
 
 // draw line
 shape::draw_line2d(50, 50, 200, 300, canvas, &ada::color::WHITE);
