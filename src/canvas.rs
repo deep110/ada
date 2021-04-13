@@ -8,19 +8,22 @@ pub struct Canvas<'a> {
     width: usize,
     /// buffer to write pixel values
     buffer: &'a mut [u8],
+
+    h_minus_1: usize,
+    w_minus_1: usize,
 }
 
 impl<'a> Canvas<'a> {
     /// creates a new canvas. Takes:
-    /// 
+    ///
     /// ```
     /// width: width of the canvas
     /// height: height of the canvas
     /// buffer: unsigned int array of sufficient length to write pixel values
     /// ```
-    /// 
+    ///
     /// Canvas does not own the buffer
-    /// 
+    ///
     /// Returns unsupported error if buffer is not of sufficient length
     pub fn new(width: usize, height: usize, buffer: &'a mut [u8]) -> Result<Canvas<'a>> {
         if buffer.len() < 4 * width * height {
@@ -30,6 +33,8 @@ impl<'a> Canvas<'a> {
             width: width,
             height: height,
             buffer: buffer,
+            w_minus_1: width-1,
+            h_minus_1: height-1,
         })
     }
 
@@ -70,6 +75,9 @@ impl<'a> Canvas<'a> {
 
     #[inline(always)]
     fn draw_point_internal(&mut self, x: usize, y: usize, color: &Color) {
+        if x > self.w_minus_1 || y > self.h_minus_1 {
+            return;
+        }
         let si = (x + y * self.width) * 4;
         self.buffer[si] = color.r;
         self.buffer[si + 1] = color.g;
