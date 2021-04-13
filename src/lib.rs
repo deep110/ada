@@ -1,3 +1,37 @@
+//! A 2D Shapes pixel rendering library in rust. Supported shapes are:
+//! * Line2D
+//! * Rectangle2D
+//! * Ellipse2D
+//! * Polygon2D
+//! * Bezier2D [Both quadratic and cubic]
+//! 
+//! # Example
+//! 
+//! ```ignore
+//! use ada::{shape, Canvas};
+//! 
+//! const WIDTH: usize = 512;
+//! const HEIGHT: usize = 512;
+//! 
+//! pub fn main {
+//!     // create a pixel buffer for RGBA values
+//!     let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
+//!     
+//!     // create canvas
+//!     let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+//!     
+//!     // draw line
+//!     shape::draw_line2d(50, 50, 200, 300, canvas, &ada::color::WHITE);
+//!     
+//!     // draw rectangle
+//!     shape::draw_rect2d(50, 100, 100, 150, canvas, &ada::color::RED); // hollow
+//!     shape::draw_rect2d_filled(50, 100, 90, 120, canvas, &ada::color::GREEN); // filled
+//!     
+//!     // draw circle
+//!     shape::draw_ellipse2d(350, 200, 100, 100, canvas, &ada::color::BLUE);
+//! }
+//! ```
+
 // forbid unsafe code
 #![forbid(unsafe_code)]
 

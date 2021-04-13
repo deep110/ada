@@ -1,15 +1,27 @@
 use crate::{errors, shape, Color, Result};
 
+/// Container for drawing the shapes
 pub struct Canvas<'a> {
-    // height of canvas
+    /// height of canvas
     height: usize,
-    // width of canvas
+    /// width of canvas
     width: usize,
-
+    /// buffer to write pixel values
     buffer: &'a mut [u8],
 }
 
 impl<'a> Canvas<'a> {
+    /// creates a new canvas. Takes:
+    /// 
+    /// ```
+    /// width: width of the canvas
+    /// height: height of the canvas
+    /// buffer: unsigned int array of sufficient length to write pixel values
+    /// ```
+    /// 
+    /// Canvas does not own the buffer
+    /// 
+    /// Returns unsupported error if buffer is not of sufficient length
     pub fn new(width: usize, height: usize, buffer: &'a mut [u8]) -> Result<Canvas<'a>> {
         if buffer.len() < 4 * width * height {
             return errors::unsupported_error("Insufficient buffer length");
@@ -21,6 +33,7 @@ impl<'a> Canvas<'a> {
         })
     }
 
+    /// Draw the shape within the bounds in the canvas
     pub fn draw(&mut self, shape: &dyn shape::Shape, color: &Color, is_filled: bool) {
         if is_filled {
             shape.draw_filled(self, color)
@@ -29,6 +42,7 @@ impl<'a> Canvas<'a> {
         }
     }
 
+    /// fill the canvas buffer with specified color
     pub fn clear(&mut self, color: &Color) {
         for i in 0..self.width {
             for j in 0..self.height {
@@ -37,6 +51,7 @@ impl<'a> Canvas<'a> {
         }
     }
 
+    /// Get the pixel's color value at specified coordinate
     #[inline]
     pub fn get_color(&self, x: i32, y: i32) -> &[u8] {
         // TODO: take care of mapping from user's coordinate plane to canvas

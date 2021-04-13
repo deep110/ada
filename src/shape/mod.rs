@@ -1,3 +1,5 @@
+//! The `shape` module implements the rendering of shapes
+
 mod bezier2d;
 mod ellipse2d;
 mod line2d;

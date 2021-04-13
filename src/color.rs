@@ -1,21 +1,25 @@
-/// struct for color
+//! The `color` module is a utility module for defining RGBA colors
+
+/// defines RGBA color
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Color {
-    // red component
+    /// red component
     pub r: u8,
-
+    /// green component
     pub g: u8,
-
+    /// blue component
     pub b: u8,
-
+    /// alpha component
     pub a: u8,
 }
 
 impl Color {
+    /// creates a new RGBA color from rgba values
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Color {
         Color { r, g, b, a }
     }
 
+    /// creates a new RGBA color from rgb values and alpha 255 
     pub fn rgb(r: u8, g: u8, b: u8) -> Color {
         Color { r, g, b, a: 255 }
     }
