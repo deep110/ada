@@ -47,10 +47,10 @@ impl Shape for Ellipse2D {
 }
 
 /// Draws ellipse using [Mid Point Ellipse Algorithm](https://www.javatpoint.com/computer-graphics-midpoint-ellipse-algorithm)
-/// 
-/// For circle which is just a special case when major and minor axis are equal, we move to more optimized
-/// [Midpoint Circle Algorithm](https://en.wikipedia.org/wiki/Midpoint_circle_algorithm). It exploits eight the
-/// fold symmetry in circles.
+///
+/// For circle which is just a special case when major and minor axis are equal,
+/// we move to more optimized [Midpoint Circle Algorithm](https://en.wikipedia.org/wiki/Midpoint_circle_algorithm).
+/// It exploits eight the fold symmetry in circles.
 pub fn draw_ellipse2d(
     xc: i32,
     yc: i32,
@@ -68,48 +68,36 @@ pub fn draw_ellipse2d(
 
     let wr2 = width_radius * width_radius;
     let hr2 = height_radius * height_radius;
-    let mut x = 0;
-    let mut y = height_radius;
-    let mut px = 0;
-    let mut py = 2 * wr2 * y;
+    let mut x = -width_radius;
+    let mut y = 0;
+    let mut e2 = height_radius;
+    let mut dx = (1 + 2 * x) * e2 * e2;
+    let mut dy = x * x;
+    let mut err = dx + dy;
 
-    // Region I
-    let mut p = (hr2 - (wr2 * height_radius)) as f32 + (0.25 * wr2 as f32);
-    while px <= py {
-        x += 1;
-        px += 2 * hr2;
-        if p < 0.0 {
-            p += (hr2 + px) as f32;
-        } else {
-            y -= 1;
-            py += -2 * wr2;
-            p += (hr2 + px - py) as f32;
-        }
-
+    while x <= 0 {
         canvas.draw_point(xc + x, yc + y, color);
         canvas.draw_point(xc - x, yc + y, color);
         canvas.draw_point(xc + x, yc - y, color);
         canvas.draw_point(xc - x, yc - y, color);
+        e2 = 2 * err;
+        if e2 >= dx {
+            x += 1;
+            dx += 2 * hr2;
+            err += dx;
+        }
+
+        if e2 <= dy {
+            y += 1;
+            dy += 2 * wr2;
+            err += dy;
+        }
     }
 
-    // Region II
-    p = (hr2 as f32) * (x as f32 + 0.5) * (x as f32 + 0.5) + (wr2 * (y - 1) * (y - 1)) as f32
-        - (wr2 * hr2) as f32;
-    while y > 0 {
-        y -= 1;
-        py += -2 * wr2;
-        if p > 0.0 {
-            p += (wr2 - py) as f32;
-        } else {
-            x += 1;
-            px += 2 * hr2;
-            p += (wr2 - py + px) as f32;
-        }
-
-        canvas.draw_point(xc + x, yc + y, color);
-        canvas.draw_point(xc - x, yc + y, color);
-        canvas.draw_point(xc + x, yc - y, color);
-        canvas.draw_point(xc - x, yc - y, color);
+    while y < height_radius {
+        y += 1;
+        canvas.draw_point(xc, yc + y, color);
+        canvas.draw_point(xc, yc - y, color);
     }
 }
 
@@ -155,44 +143,33 @@ pub fn draw_ellipse2d_filled(
 
     let wr2 = width_radius * width_radius;
     let hr2 = height_radius * height_radius;
-    let mut x = 0;
-    let mut y = height_radius;
-    let mut px = 0;
-    let mut py = 2 * wr2 * y;
+    let mut x = -width_radius;
+    let mut y = 0;
+    let mut e2 = height_radius;
+    let mut dx = (1 + 2 * x) * e2 * e2;
+    let mut dy = x * x;
+    let mut err = dx + dy;
 
-    // Region I
-    let mut p = (hr2 - (wr2 * height_radius)) as f32 + (0.25 * wr2 as f32);
-    while px <= py {
-        x += 1;
-        px += 2 * hr2;
-        if p < 0.0 {
-            p += (hr2 + px) as f32;
-        } else {
-            y -= 1;
-            py += -2 * wr2;
-            p += (hr2 + px - py) as f32;
-        }
-
+    while x <= 0 {
         draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color);
         draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color);
+        e2 = 2 * err;
+        if e2 >= dx {
+            x += 1;
+            dx += 2 * hr2;
+            err += dx;
+        }
+
+        if e2 <= dy {
+            y += 1;
+            dy += 2 * wr2;
+            err += dy;
+        }
     }
 
-    // Region II
-    p = (hr2 as f32) * (x as f32 + 0.5) * (x as f32 + 0.5) + (wr2 * (y - 1) * (y - 1)) as f32
-        - (wr2 * hr2) as f32;
-    while y > 0 {
-        y -= 1;
-        py += -2 * wr2;
-        if p > 0.0 {
-            p += (wr2 - py) as f32;
-        } else {
-            x += 1;
-            px += 2 * hr2;
-            p += (wr2 - py + px) as f32;
-        }
-
-        draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color);
-        draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color);
+    while y < height_radius - 1 {
+        y += 1;
+        draw_line2d(xc, yc - y, xc, yc + y, canvas, color);
     }
 }
 
@@ -226,7 +203,6 @@ mod tests {
 
     const WIDTH: usize = 512;
     const HEIGHT: usize = 512;
-    // const WHITE: [u8; 4] = [255, 255, 255, 255];
 
     #[bench]
     fn bench_render_circle(b: &mut Bencher) {
