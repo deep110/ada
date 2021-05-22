@@ -1,6 +1,6 @@
 [package]
 name = "ada"
-version = "0.2.0"
+version = "0.3.0"
 description = "2D Primitive Shapes Rendering Library"
 authors = ["Deepankar Agrawal <deepankar11093@gmail.com>"]
 license = "Apache-2.0"
