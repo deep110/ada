@@ -33,14 +33,14 @@ const HEIGHT: usize = 512;
 let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
 
 // create canvas
-let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
 // draw line
-shape::draw_line2d(50, 50, 200, 300, canvas, &ada::color::WHITE);
+shape::draw_line2d(50, 50, 200, 300, canvas, &ada::color::WHITE, &mut buffer[..]);
 
 // draw rectangle
-shape::draw_rect2d(50, 100, 100, 150, canvas, &ada::color::RED); // hollow
-shape::draw_rect2d_filled(50, 100, 90, 120, canvas, &ada::color::GREEN); // filled
+shape::draw_rect2d(50, 100, 100, 150, canvas, &ada::color::RED, &mut buffer[..]); // hollow
+shape::draw_rect2d_filled(50, 100, 90, 120, canvas, &ada::color::GREEN, &mut buffer[..]); // filled
 ```
 
 You can find more examples for all shapes in `examples` folder. To run an example:

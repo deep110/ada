@@ -10,9 +10,11 @@ use crate::canvas::Canvas;
 use crate::Color;
 
 pub trait Shape {
-    fn draw(&self, canvas: &mut Canvas, color: &Color);
+    fn draw(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]);
 
-    fn draw_filled(&self, canvas: &mut Canvas, color: &Color);
+    fn draw_filled(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]);
+
+    fn is_filled(&self) -> bool;
 }
 
 pub use bezier2d::{

@@ -17,12 +17,15 @@ impl<'a> Polygon2D<'a> {
 }
 
 impl<'a> Shape for Polygon2D<'a> {
-    fn draw(&self, canvas: &mut Canvas, color: &Color) {
-        draw_polygon2d(self.xi, self.yi, canvas, color);
+    fn draw(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
+        draw_polygon2d(self.xi, self.yi, canvas, color, buffer);
     }
 
-    fn draw_filled(&self, canvas: &mut Canvas, color: &Color) {
-        draw_polygon2d_filled(self.xi, self.yi, canvas, color);
+    fn draw_filled(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
+        draw_polygon2d_filled(self.xi, self.yi, canvas, color, buffer);
+    }
+    fn is_filled(&self) -> bool {
+        false
     }
 }
 
@@ -145,9 +148,16 @@ fn create_convex_hull(xi: &[i32], yi: &[i32]) -> Vec<usize> {
 }
 
 /// Renders a convex polygon formed by the given points. It calculates the convex hull using [Graham Scan Algorithm](https://en.wikipedia.org/wiki/Graham_scan)
-/// 
-/// The provided list of points should be an open path, i.e first and last should not be same
-pub fn draw_polygon2d(xi: &[i32], yi: &[i32], canvas: &mut Canvas, color: &Color) {
+///
+/// The provided list of points should be an open path, i.e first and last
+/// should not be same
+pub fn draw_polygon2d(
+    xi: &[i32],
+    yi: &[i32],
+    canvas: &mut Canvas,
+    color: &Color,
+    buffer: &mut [u8],
+) {
     if xi.len() != yi.len() {
         return;
     }
@@ -163,6 +173,7 @@ pub fn draw_polygon2d(xi: &[i32], yi: &[i32], canvas: &mut Canvas, color: &Color
             yi[hull[i + 1]],
             canvas,
             color,
+            buffer,
         );
     }
     // draw closing line from last index to first index
@@ -173,10 +184,18 @@ pub fn draw_polygon2d(xi: &[i32], yi: &[i32], canvas: &mut Canvas, color: &Color
         yi[hull[0]],
         canvas,
         color,
+        buffer,
     );
 }
 
-pub fn draw_polygon2d_filled(_xi: &[i32], _yi: &[i32], _canvas: &mut Canvas, _color: &Color) {}
+pub fn draw_polygon2d_filled(
+    _xi: &[i32],
+    _yi: &[i32],
+    _canvas: &mut Canvas,
+    _color: &Color,
+    _buffer: &mut [u8],
+) {
+}
 
 #[cfg(test)]
 mod tests {
@@ -190,19 +209,19 @@ mod tests {
     #[test]
     fn test_polygon_correct_convex_hull() {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
         let xi: [i32; 10] = [127, 243, 62, 110, 93, 193, 135, 70, 258, 248];
         let yi: [i32; 10] = [320, 15, 162, 54, 311, 314, 290, 10, 163, 155];
 
-        draw_polygon2d(&xi, &yi, &mut canvas, &color::WHITE);
+        draw_polygon2d(&xi, &yi, &mut canvas, &color::WHITE, &mut buffer[..]);
 
-        assert_eq!(canvas.get_color(70, 10), &WHITE);
-        assert_eq!(canvas.get_color(243, 15), &WHITE);
-        assert_eq!(canvas.get_color(258, 163), &WHITE);
-        assert_eq!(canvas.get_color(193, 314), &WHITE);
-        assert_eq!(canvas.get_color(127, 320), &WHITE);
-        assert_eq!(canvas.get_color(93, 311), &WHITE);
-        assert_eq!(canvas.get_color(62, 162), &WHITE);
+        assert_eq!(canvas.get_color(70, 10, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(243, 15, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(258, 163, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(193, 314, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(127, 320, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(93, 311, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(62, 162, &mut buffer[..]), &WHITE);
     }
 }

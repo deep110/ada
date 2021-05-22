@@ -18,17 +18,17 @@
 //!     let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
 //!     
 //!     // create canvas
-//!     let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+//!     let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 //!     
 //!     // draw line
-//!     shape::draw_line2d(50, 50, 200, 300, canvas, &ada::color::WHITE);
+//!     shape::draw_line2d(50, 50, 200, 300, canvas, &ada::color::WHITE, &mut buffer[..]);
 //!     
 //!     // draw rectangle
-//!     shape::draw_rect2d(50, 100, 100, 150, canvas, &ada::color::RED); // hollow
-//!     shape::draw_rect2d_filled(50, 100, 90, 120, canvas, &ada::color::GREEN); // filled
+//!     shape::draw_rect2d(50, 100, 100, 150, canvas, &ada::color::RED, &mut buffer[..]); // hollow
+//!     shape::draw_rect2d_filled(50, 100, 90, 120, canvas, &ada::color::GREEN, &mut buffer[..]); // filled
 //!     
 //!     // draw circle
-//!     shape::draw_ellipse2d(350, 200, 100, 100, canvas, &ada::color::BLUE);
+//!     shape::draw_ellipse2d(350, 200, 100, 100, canvas, &ada::color::BLUE, &mut buffer[..]);
 //! }
 //! ```
 

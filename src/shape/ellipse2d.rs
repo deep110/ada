@@ -9,21 +9,23 @@ pub struct Ellipse2D {
     yc: i32,
     width_radius: i32,
     height_radius: i32,
+    is_filled: bool,
 }
 
 impl Ellipse2D {
-    pub fn new(xc: i32, yc: i32, width_radius: i32, height_radius: i32) -> Self {
+    pub fn new(xc: i32, yc: i32, width_radius: i32, height_radius: i32, fill: bool) -> Self {
         Ellipse2D {
             xc,
             yc,
             width_radius,
             height_radius,
+            is_filled: fill,
         }
     }
 }
 
 impl Shape for Ellipse2D {
-    fn draw(&self, canvas: &mut Canvas, color: &Color) {
+    fn draw(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
         draw_ellipse2d(
             self.xc,
             self.yc,
@@ -31,10 +33,11 @@ impl Shape for Ellipse2D {
             self.height_radius,
             canvas,
             color,
+            buffer,
         );
     }
 
-    fn draw_filled(&self, canvas: &mut Canvas, color: &Color) {
+    fn draw_filled(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
         draw_ellipse2d_filled(
             self.xc,
             self.yc,
@@ -42,7 +45,11 @@ impl Shape for Ellipse2D {
             self.height_radius,
             canvas,
             color,
+            buffer,
         );
+    }
+    fn is_filled(&self) -> bool {
+        self.is_filled
     }
 }
 
@@ -58,11 +65,12 @@ pub fn draw_ellipse2d(
     height_radius: i32,
     canvas: &mut Canvas,
     color: &Color,
+    buffer: &mut [u8],
 ) {
     // if major axis length and minor axis length is same, means it is a circle
     // circle have eight fold symmetry, so we can use more optimized algorithm
     if width_radius == height_radius {
-        draw_circle(xc, yc, width_radius, canvas, color);
+        draw_circle(xc, yc, width_radius, canvas, color, buffer);
         return;
     }
 
@@ -76,10 +84,10 @@ pub fn draw_ellipse2d(
     let mut err = dx + dy;
 
     while x <= 0 {
-        canvas.draw_point(xc + x, yc + y, color);
-        canvas.draw_point(xc - x, yc + y, color);
-        canvas.draw_point(xc + x, yc - y, color);
-        canvas.draw_point(xc - x, yc - y, color);
+        canvas.draw_point(xc + x, yc + y, color, buffer);
+        canvas.draw_point(xc - x, yc + y, color, buffer);
+        canvas.draw_point(xc + x, yc - y, color, buffer);
+        canvas.draw_point(xc - x, yc - y, color, buffer);
         e2 = 2 * err;
         if e2 >= dx {
             x += 1;
@@ -96,27 +104,34 @@ pub fn draw_ellipse2d(
 
     while y < height_radius {
         y += 1;
-        canvas.draw_point(xc, yc + y, color);
-        canvas.draw_point(xc, yc - y, color);
+        canvas.draw_point(xc, yc + y, color, buffer);
+        canvas.draw_point(xc, yc - y, color, buffer);
     }
 }
 
 /// Draws the circle using [Midpoint Circle Algorithm](https://en.wikipedia.org/wiki/Midpoint_circle_algorithm)
 #[inline(always)]
-fn draw_circle(xc: i32, yc: i32, radius: i32, canvas: &mut Canvas, color: &Color) {
+fn draw_circle(
+    xc: i32,
+    yc: i32,
+    radius: i32,
+    canvas: &mut Canvas,
+    color: &Color,
+    buffer: &mut [u8],
+) {
     let mut x = 0i32;
     let mut y = radius;
     let mut d = 1 - radius;
 
     while x <= y {
-        canvas.draw_point(xc + x, yc + y, color);
-        canvas.draw_point(xc + y, yc + x, color);
-        canvas.draw_point(xc - y, yc + x, color);
-        canvas.draw_point(xc - x, yc + y, color);
-        canvas.draw_point(xc - x, yc - y, color);
-        canvas.draw_point(xc - y, yc - x, color);
-        canvas.draw_point(xc + y, yc - x, color);
-        canvas.draw_point(xc + x, yc - y, color);
+        canvas.draw_point(xc + x, yc + y, color, buffer);
+        canvas.draw_point(xc + y, yc + x, color, buffer);
+        canvas.draw_point(xc - y, yc + x, color, buffer);
+        canvas.draw_point(xc - x, yc + y, color, buffer);
+        canvas.draw_point(xc - x, yc - y, color, buffer);
+        canvas.draw_point(xc - y, yc - x, color, buffer);
+        canvas.draw_point(xc + y, yc - x, color, buffer);
+        canvas.draw_point(xc + x, yc - y, color, buffer);
 
         x += 1;
         if d < 0 {
@@ -135,9 +150,10 @@ pub fn draw_ellipse2d_filled(
     height_radius: i32,
     canvas: &mut Canvas,
     color: &Color,
+    buffer: &mut [u8],
 ) {
     if width_radius == height_radius {
-        draw_circle_filled(xc, yc, width_radius, canvas, color);
+        draw_circle_filled(xc, yc, width_radius, canvas, color, buffer);
         return;
     }
 
@@ -151,8 +167,8 @@ pub fn draw_ellipse2d_filled(
     let mut err = dx + dy;
 
     while x <= 0 {
-        draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color);
-        draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color);
+        draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color, buffer);
+        draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color, buffer);
         e2 = 2 * err;
         if e2 >= dx {
             x += 1;
@@ -169,21 +185,28 @@ pub fn draw_ellipse2d_filled(
 
     while y < height_radius - 1 {
         y += 1;
-        draw_line2d(xc, yc - y, xc, yc + y, canvas, color);
+        draw_line2d(xc, yc - y, xc, yc + y, canvas, color, buffer);
     }
 }
 
 #[inline(always)]
-fn draw_circle_filled(xc: i32, yc: i32, radius: i32, canvas: &mut Canvas, color: &Color) {
+fn draw_circle_filled(
+    xc: i32,
+    yc: i32,
+    radius: i32,
+    canvas: &mut Canvas,
+    color: &Color,
+    buffer: &mut [u8],
+) {
     let mut x = 0i32;
     let mut y = radius;
     let mut d = 1 - radius;
 
     while x <= y {
-        draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color);
-        draw_line2d(xc + y, yc + x, xc - y, yc + x, canvas, color);
-        draw_line2d(xc + y, yc - x, xc - y, yc - x, canvas, color);
-        draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color);
+        draw_line2d(xc + x, yc + y, xc - x, yc + y, canvas, color, buffer);
+        draw_line2d(xc + y, yc + x, xc - y, yc + x, canvas, color, buffer);
+        draw_line2d(xc + y, yc - x, xc - y, yc - x, canvas, color, buffer);
+        draw_line2d(xc + x, yc - y, xc - x, yc - y, canvas, color, buffer);
 
         x += 1;
         if d < 0 {
@@ -207,32 +230,72 @@ mod tests {
     #[bench]
     fn bench_render_circle(b: &mut Bencher) {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        b.iter(|| draw_ellipse2d(200, 200, 200, 200, &mut canvas, &color::WHITE));
+        b.iter(|| {
+            draw_ellipse2d(
+                200,
+                200,
+                200,
+                200,
+                &mut canvas,
+                &color::WHITE,
+                &mut buffer[..],
+            )
+        });
     }
 
     #[bench]
     fn bench_render_ellipse(b: &mut Bencher) {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        b.iter(|| draw_ellipse2d(200, 200, 199, 200, &mut canvas, &color::WHITE));
+        b.iter(|| {
+            draw_ellipse2d(
+                200,
+                200,
+                199,
+                200,
+                &mut canvas,
+                &color::WHITE,
+                &mut buffer[..],
+            )
+        });
     }
 
     #[bench]
     fn bench_render_circle_filled(b: &mut Bencher) {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        b.iter(|| draw_ellipse2d_filled(200, 200, 200, 200, &mut canvas, &color::WHITE));
+        b.iter(|| {
+            draw_ellipse2d_filled(
+                200,
+                200,
+                200,
+                200,
+                &mut canvas,
+                &color::WHITE,
+                &mut buffer[..],
+            )
+        });
     }
 
     #[bench]
     fn bench_render_ellipse_filled(b: &mut Bencher) {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        b.iter(|| draw_ellipse2d_filled(200, 200, 199, 200, &mut canvas, &color::WHITE));
+        b.iter(|| {
+            draw_ellipse2d_filled(
+                200,
+                200,
+                199,
+                200,
+                &mut canvas,
+                &color::WHITE,
+                &mut buffer[..],
+            )
+        });
     }
 }

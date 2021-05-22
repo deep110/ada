@@ -17,19 +17,31 @@ impl Line2D {
 }
 
 impl Shape for Line2D {
-    fn draw(&self, canvas: &mut Canvas, color: &Color) {
-        draw_line2d(self.x1, self.y1, self.x2, self.y2, canvas, color);
+    fn draw(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
+        draw_line2d(self.x1, self.y1, self.x2, self.y2, canvas, color, buffer);
     }
 
-    fn draw_filled(&self, canvas: &mut Canvas, color: &Color) {
-        draw_line2d(self.x1, self.y1, self.x2, self.y2, canvas, color);
+    fn draw_filled(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
+        draw_line2d(self.x1, self.y1, self.x2, self.y2, canvas, color, buffer);
+    }
+
+    fn is_filled(&self) -> bool {
+        false
     }
 }
 
 /// Draws the line using [Bresenham's line Algorithm](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm)
 ///
 /// It only involves integer calculations hence is fast than DDA
-pub fn draw_line2d(x1: i32, y1: i32, x2: i32, y2: i32, canvas: &mut Canvas, color: &Color) {
+pub fn draw_line2d(
+    x1: i32,
+    y1: i32,
+    x2: i32,
+    y2: i32,
+    canvas: &mut Canvas,
+    color: &Color,
+    buffer: &mut [u8],
+) {
     let mut mx1 = x1;
     let mut mx2 = x2;
     let mut my1 = y1;
@@ -51,9 +63,9 @@ pub fn draw_line2d(x1: i32, y1: i32, x2: i32, y2: i32, canvas: &mut Canvas, colo
     let mut y = my1;
     for x in mx1..(mx2 + 1) {
         if steep {
-            canvas.draw_point(y, x, color);
+            canvas.draw_point(y, x, color, buffer);
         } else {
-            canvas.draw_point(x, y, color);
+            canvas.draw_point(x, y, color, buffer);
         }
         error += derror;
         if error > dx {
@@ -84,84 +96,84 @@ mod tests {
     #[test]
     fn test_line_slope_less_than_one() {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        draw_line2d(0, 0, 4, 2, &mut canvas, &color::WHITE);
+        draw_line2d(0, 0, 4, 2, &mut canvas, &color::WHITE, &mut buffer[..]);
 
-        assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(1, 0), &WHITE);
-        assert_eq!(canvas.get_color(2, 1), &WHITE);
-        assert_eq!(canvas.get_color(3, 1), &WHITE);
-        assert_eq!(canvas.get_color(4, 2), &WHITE);
+        assert_eq!(canvas.get_color(0, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(1, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(2, 1, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(3, 1, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(4, 2, &mut buffer[..]), &WHITE);
     }
 
     #[test]
     fn test_line_slope_one() {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        draw_line2d(0, 0, 4, 4, &mut canvas, &color::WHITE);
+        draw_line2d(0, 0, 4, 4, &mut canvas, &color::WHITE, &mut buffer[..]);
 
-        assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(1, 1), &WHITE);
-        assert_eq!(canvas.get_color(2, 2), &WHITE);
-        assert_eq!(canvas.get_color(3, 3), &WHITE);
-        assert_eq!(canvas.get_color(4, 4), &WHITE);
+        assert_eq!(canvas.get_color(0, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(1, 1, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(2, 2, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(3, 3, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(4, 4, &mut buffer[..]), &WHITE);
     }
 
     #[test]
     fn test_line_slope_greater_than_one() {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        draw_line2d(0, 0, 2, 4, &mut canvas, &color::WHITE);
+        draw_line2d(0, 0, 2, 4, &mut canvas, &color::WHITE, &mut buffer[..]);
 
-        assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(0, 1), &WHITE);
-        assert_eq!(canvas.get_color(1, 2), &WHITE);
-        assert_eq!(canvas.get_color(1, 3), &WHITE);
-        assert_eq!(canvas.get_color(2, 4), &WHITE);
+        assert_eq!(canvas.get_color(0, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(0, 1, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(1, 2, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(1, 3, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(2, 4, &mut buffer[..]), &WHITE);
     }
 
     #[test]
     fn test_line_slope_infinite() {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        draw_line2d(0, 0, 0, 4, &mut canvas, &color::WHITE);
+        draw_line2d(0, 0, 0, 4, &mut canvas, &color::WHITE, &mut buffer[..]);
 
-        assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(0, 1), &WHITE);
-        assert_eq!(canvas.get_color(0, 2), &WHITE);
-        assert_eq!(canvas.get_color(0, 3), &WHITE);
-        assert_eq!(canvas.get_color(0, 4), &WHITE);
+        assert_eq!(canvas.get_color(0, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(0, 1, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(0, 2, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(0, 3, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(0, 4, &mut buffer[..]), &WHITE);
     }
 
     #[test]
     fn test_line_slope_zero() {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        draw_line2d(0, 0, 4, 0, &mut canvas, &color::WHITE);
+        draw_line2d(0, 0, 4, 0, &mut canvas, &color::WHITE, &mut buffer[..]);
 
-        assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(1, 0), &WHITE);
-        assert_eq!(canvas.get_color(2, 0), &WHITE);
-        assert_eq!(canvas.get_color(3, 0), &WHITE);
-        assert_eq!(canvas.get_color(4, 0), &WHITE);
+        assert_eq!(canvas.get_color(0, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(1, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(2, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(3, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(4, 0, &mut buffer[..]), &WHITE);
     }
 
     #[test]
     fn test_line_point_reorder() {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
-        draw_line2d(4, 2, 0, 0, &mut canvas, &color::WHITE);
+        draw_line2d(4, 2, 0, 0, &mut canvas, &color::WHITE, &mut buffer[..]);
 
-        assert_eq!(canvas.get_color(0, 0), &WHITE);
-        assert_eq!(canvas.get_color(1, 0), &WHITE);
-        assert_eq!(canvas.get_color(2, 1), &WHITE);
-        assert_eq!(canvas.get_color(3, 1), &WHITE);
-        assert_eq!(canvas.get_color(4, 2), &WHITE);
+        assert_eq!(canvas.get_color(0, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(1, 0, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(2, 1, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(3, 1, &mut buffer[..]), &WHITE);
+        assert_eq!(canvas.get_color(4, 2, &mut buffer[..]), &WHITE);
     }
 }

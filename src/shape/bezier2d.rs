@@ -21,12 +21,16 @@ impl QuadraticBezier2D {
 }
 
 impl Shape for QuadraticBezier2D {
-    fn draw(&self, canvas: &mut Canvas, color: &Color) {
-        draw_quadratic_bezier2d(self.start, self.end, self.control, canvas, color);
+    fn draw(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
+        draw_quadratic_bezier2d(self.start, self.end, self.control, canvas, color, buffer);
     }
 
-    fn draw_filled(&self, canvas: &mut Canvas, color: &Color) {
-        draw_quadratic_bezier2d(self.start, self.end, self.control, canvas, color);
+    fn draw_filled(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
+        draw_quadratic_bezier2d(self.start, self.end, self.control, canvas, color, buffer);
+    }
+
+    fn is_filled(&self) -> bool {
+        false
     }
 }
 
@@ -55,7 +59,7 @@ impl CubicBezier2D {
 }
 
 impl Shape for CubicBezier2D {
-    fn draw(&self, canvas: &mut Canvas, color: &Color) {
+    fn draw(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
         draw_cubic_bezier2d(
             self.start,
             self.end,
@@ -63,10 +67,11 @@ impl Shape for CubicBezier2D {
             self.control_b,
             canvas,
             color,
+            buffer,
         );
     }
 
-    fn draw_filled(&self, canvas: &mut Canvas, color: &Color) {
+    fn draw_filled(&self, canvas: &mut Canvas, color: &Color, buffer: &mut [u8]) {
         draw_cubic_bezier2d(
             self.start,
             self.end,
@@ -74,7 +79,11 @@ impl Shape for CubicBezier2D {
             self.control_b,
             canvas,
             color,
+            buffer,
         );
+    }
+    fn is_filled(&self) -> bool {
+        false
     }
 }
 
@@ -85,6 +94,7 @@ pub fn draw_quadratic_bezier2d(
     control: (i32, i32),
     canvas: &mut Canvas,
     color: &Color,
+    buffer: &mut [u8],
 ) {
     let quadratic_bezier_curve = |t: f32| {
         let t2 = t * t;
@@ -114,7 +124,7 @@ pub fn draw_quadratic_bezier2d(
     for i in 0..num_segments {
         let t2 = (i as f32 + 1.0) * t_interval;
         let s2 = quadratic_bezier_curve(t2);
-        draw_line2d(s1.0, s1.1, s2.0, s2.1, canvas, color);
+        draw_line2d(s1.0, s1.1, s2.0, s2.1, canvas, color, buffer);
         t1 = t2;
         s1 = quadratic_bezier_curve(t1);
     }
@@ -130,6 +140,7 @@ pub fn draw_cubic_bezier2d(
     control_b: (i32, i32),
     canvas: &mut Canvas,
     color: &Color,
+    buffer: &mut [u8],
 ) {
     let cubic_bezier_curve = |t: f32| {
         let t2 = t * t;
@@ -166,7 +177,7 @@ pub fn draw_cubic_bezier2d(
         let t2 = (i as f32 + 1.0) * t_interval;
         let s1 = cubic_bezier_curve(t1);
         let s2 = cubic_bezier_curve(t2);
-        draw_line2d(s1.0, s1.1, s2.0, s2.1, canvas, color);
+        draw_line2d(s1.0, s1.1, s2.0, s2.1, canvas, color, buffer);
         t1 = t2;
     }
 }
@@ -183,20 +194,35 @@ mod tests {
     #[bench]
     fn bench_render_quadratic_bezier(b: &mut Bencher) {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
         b.iter(|| {
-            draw_quadratic_bezier2d((10, 500), (500, 10), (40, 40), &mut canvas, &color::WHITE)
+            draw_quadratic_bezier2d(
+                (10, 500),
+                (500, 10),
+                (40, 40),
+                &mut canvas,
+                &color::WHITE,
+                &mut buffer[..],
+            )
         });
     }
 
     #[bench]
     fn bench_render_cubic_bezier(b: &mut Bencher) {
         let mut buffer = vec![0u8; 4 * WIDTH * HEIGHT];
-        let mut canvas = Canvas::new(WIDTH, HEIGHT, &mut buffer[..]).unwrap();
+        let mut canvas = Canvas::new(WIDTH, HEIGHT).unwrap();
 
         b.iter(|| {
-            draw_cubic_bezier2d((110, 150), (210, 30), (25, 190), (210, 250), &mut canvas, &color::WHITE)
+            draw_cubic_bezier2d(
+                (110, 150),
+                (210, 30),
+                (25, 190),
+                (210, 250),
+                &mut canvas,
+                &color::WHITE,
+                &mut buffer[..],
+            )
         });
     }
 }
